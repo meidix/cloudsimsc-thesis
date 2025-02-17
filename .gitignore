@@ -49,4 +49,6 @@ buildNumber.properties
 *.csv
 .settings
 
+.idea/
+
 # End of https://www.toptal.com/developers/gitignore/api/java,maven
