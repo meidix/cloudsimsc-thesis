@@ -105,17 +105,19 @@ public class ServerlessSimpleSimulation {
       // Printing the results when the simulation is finished.
       List<ContainerCloudlet> finishedRequests = controller.getCloudletReceivedList();
       List<ServerlessContainer> destroyedContainers = controller.getContainersDestroyedList();
+      List<ServerlessContainer> containerList = controller.getContainerList();
+      double averageResourceUtilization = controller.getAverageResourceUtilization();
       printRequestList(finishedRequests);
       printContainerList(destroyedContainers);
-       if (Constants.MONITORING) {
-       printVmUpDownTime();
-       printVmUtilization();
-       }
+      printContainerList(containerList);
+      if (Constants.MONITORING) {
+//        printVmUpDownTime();
+        printVmUtilization();
+      }
 
       // Writing the results to a file when the simulation is finished.
-       writeDataLineByLine(finishedRequests);
-
-      // Log.printLine("ContainerCloudSimExample1 finished!");
+      // writeDataLineByLine(finishedRequests);
+      Log.printLine("ServerlessSimulationSimple finished!");
     } catch (Exception e) {
       e.printStackTrace();
       Log.printLine("Unwanted errors happen");
@@ -123,48 +125,63 @@ public class ServerlessSimpleSimulation {
   }
 
   private static void createRequests() throws IOException {
-    long fileSize = 10L;
-    long outputSize = 10L;
+
     BufferedReader br = new BufferedReader(new FileReader(Constants.FUNCTION_REQUESTS_FILENAME));
     String line = null;
     String cvsSplitBy = ",";
     controller.noOfTasks++;
 
-    // Serverless requests could utilize part of a vCPU core in case container
     // concurrency is enabled
     UtilizationModelPartial utilizationModelPar = new UtilizationModelPartial();
     UtilizationModelFull utilizationModel = new UtilizationModelFull();
 
+    long fileSize = 10L;
+    long outputSize = 10L;
+    double cpuShareReq = 1.0d;
+    double memShareReq = 1.0d;
+    double arrivalTime;
+    String functionID;
+    long requestLength;
+    int pesNumber;
+    int containerMemory;
+    int containerMips;
+
+
     while ((line = br.readLine()) != null) {
       String[] data = line.split(cvsSplitBy);
       int createdRequests = 0;
-      System.out.println(data[0]);
-      if (data[2].equals("duration"))
-        continue;
 
       ServerlessRequest request = null;
-      double cpuShareReq = 1.0d;
-      double memShareReq = 1.0d;
-      long containerMips = (long) Constants.CONTAINER_MIPS[Integer.parseInt(data[5]) - 1];
+      arrivalTime = Double.parseDouble(data[0]);
+      functionID = String.valueOf(data[1]);
+      requestLength = Long.parseLong(data[2]);
+      pesNumber = Integer.parseInt(data[3]);
+      containerMemory = Integer.parseInt(data[4]);
+      containerMips = Integer.parseInt(data[5]);
 
       try {
         request = new ServerlessRequest(
-            IDs.pollId(ServerlessRequest.class),
-            Double.parseDouble(data[4]),
-            String.valueOf(data[3]),
-            (long) Float.parseFloat(data[7]),
-            Integer.parseInt(data[5]),
-            Integer.parseInt(data[6]),
-            containerMips,
-            cpuShareReq,
-            memShareReq,
-            fileSize,
-            outputSize,
-            utilizationModelPar,
-            utilizationModelPar,
-            utilizationModel,
-            0,
-            true);
+                IDs.pollId(ServerlessRequest.class),
+                arrivalTime, functionID, requestLength, pesNumber, containerMemory,
+                containerMips, cpuShareReq, memShareReq, fileSize, outputSize, utilizationModelPar,
+                utilizationModelPar, utilizationModel, 1, true);
+//        request = new ServerlessRequest(
+//            IDs.pollId(ServerlessRequest.class),
+//            Double.parseDouble(data[4]),
+//            String.valueOf(data[3]),
+//            (long) Float.parseFloat(data[7]),
+//            Integer.parseInt(data[5]),
+//            Integer.parseInt(data[6]),
+//            containerMips,
+//            cpuShareReq,
+//            memShareReq,
+//            fileSize,
+//            outputSize,
+//            utilizationModelPar,
+//            utilizationModelPar,
+//            utilizationModel,
+//            0,
+//            true);
         System.out.println("request No " + request.getCloudletId());
       } catch (Exception e) {
         e.printStackTrace();
@@ -173,8 +190,8 @@ public class ServerlessSimpleSimulation {
       }
       request.setUserId(controller.getId());
       System.out
-          .println(CloudSim.clock() + " request created. This request arrival time is :" + Double.parseDouble(data[3]));
-      controller.requestArrivalTime.add(Double.parseDouble(data[4]) + Constants.FUNCTION_SCHEDULING_DELAY);
+          .println(CloudSim.clock() + " request created. This request arrival time is :" + arrivalTime);
+      controller.requestArrivalTime.add(arrivalTime + Constants.FUNCTION_SCHEDULING_DELAY);
       controller.requestQueue.add(request);
       createdRequests += 1;
     }
@@ -283,7 +300,7 @@ public class ServerlessSimpleSimulation {
 
       hostList.add(new PowerContainerHostUtilizationHistory(IDs.pollId(ContainerHost.class),
           new ContainerVmRamProvisionerSimple(Constants.HOST_RAM[hostType]),
-          new ContainerVmBwProvisionerSimple(1000000L), 1000000L, peList,
+          new ContainerVmBwProvisionerSimple(Constants.HOST_BW), Constants.HOST_STORAGE, peList,
           new ContainerVmSchedulerTimeSharedOverSubscription(peList),
           Constants.HOST_POWER[hostType]));
     }

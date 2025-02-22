@@ -105,11 +105,11 @@ public class ContainerHostDynamicWorkload extends ContainerHost{
                                 + ": %.2f", CloudSim.clock(), totalRequestedMips - totalAllocatedMips);
                     }
 
-                    containerVm.addStateHistoryEntry(
-                            currentTime,
-                            totalAllocatedMips,
-                            totalRequestedMips,
-                            (containerVm.isInMigration() && !getVmsMigratingIn().contains(containerVm)));
+//                    containerVm.addStateHistoryEntry(
+//                            currentTime,
+//                            totalAllocatedMips,
+//                            totalRequestedMips,
+//                            (containerVm.isInMigration() && !getVmsMigratingIn().contains(containerVm)));
 
                     if (containerVm.isInMigration()) {
                         Log.formatLine(
@@ -123,11 +123,11 @@ public class ContainerHostDynamicWorkload extends ContainerHost{
                 hostTotalRequestedMips += totalRequestedMips;
             }
 
-            addStateHistoryEntry(
-                    currentTime,
-                    getUtilizationMips(),
-                    hostTotalRequestedMips,
-                    (getUtilizationMips() > 0));
+//            addStateHistoryEntry(
+//                    currentTime,
+//                    getUtilizationMips(),
+//                    hostTotalRequestedMips,
+//                    (getUtilizationMips() > 0));
 
             return smallerTime;
         }
