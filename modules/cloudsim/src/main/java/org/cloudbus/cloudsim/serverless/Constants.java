@@ -67,7 +67,7 @@ public class Constants {
   public static final float[] VM_RAM = new float[] { (float) 16384, (float) 16384, (float) 16384, (float) 16384 };// **MB*
   public static final int VM_BW = 20000;
   public static final int VM_SIZE = 30000;
-  public static final int CPU_HISTORY_LENGTH = 50;
+  public static final int CPU_HISTORY_LENGTH = 100;
 
   /**
    * The available types of container along with the specs.
@@ -124,7 +124,7 @@ public class Constants {
    */
 
 //  public static final String FUNCTION_REQUESTS_FILENAME = "modules/cloudsim/src/main/java/org/cloudbus/cloudsim/serverless/Real_trace_test2_small.csv";
-  public static final String FUNCTION_REQUESTS_FILENAME = "modules/cloudsim/src/main/java/org/cloudbus/cloudsim/serverless/Real_trace_test1.mini.csv";
+  public static final String FUNCTION_REQUESTS_FILENAME = "modules/cloudsim/src/main/java/org/cloudbus/cloudsim/serverless/Real_trace_test1.csv";
 
  /**
    * Algorithm specific parameters

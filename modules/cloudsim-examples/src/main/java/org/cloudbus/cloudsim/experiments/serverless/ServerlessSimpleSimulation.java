@@ -10,6 +10,9 @@ package org.cloudbus.cloudsim.experiments.serverless;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -44,6 +47,7 @@ public class ServerlessSimpleSimulation {
 
   /** The vmlist. */
   private static List<ServerlessInvoker> vmList;
+  private static String csvResultFilePath;
 
   // private int overBookingfactor = 80;
   private static int controllerId;
@@ -67,6 +71,7 @@ public class ServerlessSimpleSimulation {
       int num_user = 1; // number of cloud users
       Calendar calendar = Calendar.getInstance();
       boolean trace_flag = false; // mean trace events
+      csvResultFilePath = "Experiments/Simulation/";
 
       // Initialize the CloudSim library
       CloudSim.init(num_user, calendar, trace_flag);
@@ -107,20 +112,74 @@ public class ServerlessSimpleSimulation {
       List<ServerlessContainer> destroyedContainers = controller.getContainersDestroyedList();
       List<ServerlessContainer> containerList = controller.getContainerList();
       double averageResourceUtilization = controller.getAverageResourceUtilization();
-      printRequestList(finishedRequests);
-      printContainerList(destroyedContainers);
-      printContainerList(containerList);
+
+      saveResultsAsCSV();
+      // printRequestList(finishedRequests);
+      // printContainerList(destroyedContainers);
+      // printContainerList(containerList);
       if (Constants.MONITORING) {
 //        printVmUpDownTime();
         printVmUtilization();
       }
 
       // Writing the results to a file when the simulation is finished.
-      // writeDataLineByLine(finishedRequests);
+//       writeDataLineByLine(finishedRequests);
       Log.printLine("ServerlessSimulationSimple finished!");
     } catch (Exception e) {
       e.printStackTrace();
       Log.printLine("Unwanted errors happen");
+    }
+  }
+
+  private static String getCSVResultsFilePath() {
+    return csvResultFilePath + "ServerlessSimpleSimulation/results.csv";
+  }
+
+  private static void saveResultsAsCSV() {
+    String path = getCSVResultsFilePath();
+    List<ServerlessRequest> requestList = controller.getCloudletReceivedList();
+    try {
+      // Ensure all directories in the path exist
+      File file = new File(path);
+      Files.createDirectories(Paths.get(file.getParent()));
+
+      try (CSVWriter writer = new CSVWriter(new FileWriter(path))) {
+        // Define CSV Header
+        String[] header = {"Request ID", "Function ID", "Start Time", "Finish Time", "Response Time"};
+        writer.writeNext(header);
+
+        DecimalFormat dft = new DecimalFormat("####.##");
+
+        for (ServerlessRequest request : requestList) {
+          // Extract relevant request data
+          int requestId = request.getCloudletId();
+          String functionId =  request.getRequestFunctionId();
+          double startTime = request.getExecStartTime();
+          double finishTime = request.getFinishTime();
+          double responseTime = finishTime -  request.getArrivalTime();
+
+          // Format values for clarity
+          String[] data = {
+                  String.valueOf(requestId),
+                  functionId,
+                  dft.format(startTime),
+                  dft.format(finishTime),
+                  dft.format(responseTime)
+          };
+
+          writer.writeNext(data);
+        }
+
+        System.out.println("✅ Simulation results saved to: " + path);
+
+      } catch (IOException e) {
+        e.printStackTrace();
+        System.err.println("❌ Error writing to CSV file: " + path);
+      }
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+      System.err.println("❌ Error Creating the Path: " + path);
     }
   }
 
