@@ -117,14 +117,14 @@ public class Constants {
    */
 
   public static final int NUMBER_HOSTS = 1;
-  public static final int NUMBER_VMS = 8;
+  public static final int NUMBER_VMS = 2;
 
   /**
    * Name of the file containing function requests list.
    */
 
 //  public static final String FUNCTION_REQUESTS_FILENAME = "modules/cloudsim/src/main/java/org/cloudbus/cloudsim/serverless/Real_trace_test2_small.csv";
-  public static final String FUNCTION_REQUESTS_FILENAME = "modules/cloudsim/src/main/java/org/cloudbus/cloudsim/serverless/Real_trace_test1.csv";
+  public static final String FUNCTION_REQUESTS_FILENAME = "modules/cloudsim/src/main/java/org/cloudbus/cloudsim/serverless/Real_trace_test1.mini.csv";
 
  /**
    * Algorithm specific parameters
@@ -133,9 +133,9 @@ public class Constants {
   public static final double UNDER_UTILIZATION_THRESHOLD = 0.40;
   public static final double CONTAINER_SCALE_CPU_THRESHOLD = 0.90;
   public static final boolean CONTAINER_CONCURRENCY = false;
-  public static final boolean FUNCTION_AUTOSCALING = false;
+  public static final boolean FUNCTION_AUTOSCALING = true;
   public static final boolean FUNCTION_HORIZONTAL_AUTOSCALING = false;
-  public static final boolean FUNCTION_VERTICAL_AUTOSCALING = false;
+  public static final boolean FUNCTION_VERTICAL_AUTOSCALING = true;
   public static final boolean SCALE_PER_REQUEST = false;
   public static final String VM_SELECTION_ALGO = "RR";
   public static final String HOR_SCALING_LOGIC = "cpuThreshold";
