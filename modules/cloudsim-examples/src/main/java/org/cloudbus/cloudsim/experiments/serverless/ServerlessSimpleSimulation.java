@@ -31,6 +31,7 @@ import org.cloudbus.cloudsim.container.hostSelectionPolicies.HostSelectionPolicy
 import org.cloudbus.cloudsim.container.hostSelectionPolicies.HostSelectionPolicyFirstFit;
 import org.cloudbus.cloudsim.container.resourceAllocatorMigrationEnabled.PCVmAllocationPolicyMigrationAbstractHostSelection;
 import org.cloudbus.cloudsim.container.resourceAllocators.ContainerVmAllocationPolicy;
+import org.cloudbus.cloudsim.container.resourceAllocators.PowerContainerVmAllocationSimple;
 import org.cloudbus.cloudsim.container.schedulers.ContainerVmSchedulerTimeSharedOverSubscription;
 import org.cloudbus.cloudsim.container.utils.IDs;
 import org.cloudbus.cloudsim.container.vmSelectionPolicies.PowerContainerVmSelectionPolicy;
@@ -49,7 +50,7 @@ public class ServerlessSimpleSimulation {
   private static List<ServerlessInvoker> vmList;
   private static String csvResultFilePath;
 
-  // private int overBookingfactor = 80;
+   private int overBookingfactor = 80;
   private static int controllerId;
 
   private static RequestLoadBalancer loadBalancer;
@@ -99,7 +100,7 @@ public class ServerlessSimpleSimulation {
       createRequests();
 
       // the time at which the simulation has to be terminated.
-      CloudSim.terminateSimulation(2500.00);
+      CloudSim.terminateSimulation(3000.00);
 
       // Starting the simualtion
       CloudSim.startSimulation();
@@ -109,8 +110,6 @@ public class ServerlessSimpleSimulation {
 
       // Printing the results when the simulation is finished.
       List<ContainerCloudlet> finishedRequests = controller.getCloudletReceivedList();
-      List<ServerlessContainer> destroyedContainers = controller.getContainersDestroyedList();
-      List<ServerlessContainer> containerList = controller.getContainerList();
       double averageResourceUtilization = controller.getAverageResourceUtilization();
 
       saveResultsAsCSV();
@@ -120,6 +119,7 @@ public class ServerlessSimpleSimulation {
       if (Constants.MONITORING) {
 //        printVmUpDownTime();
         printVmUtilization();
+        System.out.println("Number of Finished Requests: " +  finishedRequests.size());
       }
 
       // Writing the results to a file when the simulation is finished.
@@ -145,7 +145,7 @@ public class ServerlessSimpleSimulation {
 
       try (CSVWriter writer = new CSVWriter(new FileWriter(path))) {
         // Define CSV Header
-        String[] header = {"Request ID", "Function ID", "Start Time", "Finish Time", "Response Time"};
+        String[] header = {"Request ID", "Function ID", "Arrival Time", "Start Time",  "Finish Time", "ExecutionTime", "Response Time"};
         writer.writeNext(header);
 
         DecimalFormat dft = new DecimalFormat("####.##");
@@ -155,15 +155,19 @@ public class ServerlessSimpleSimulation {
           int requestId = request.getCloudletId();
           String functionId =  request.getRequestFunctionId();
           double startTime = request.getExecStartTime();
+          double arrivalTime = request.getArrivalTime();
           double finishTime = request.getFinishTime();
+          double executionTime = request.getFinishTime() - request.getExecStartTime();
           double responseTime = finishTime -  request.getArrivalTime();
 
           // Format values for clarity
           String[] data = {
                   String.valueOf(requestId),
                   functionId,
+                  dft.format(arrivalTime),
                   dft.format(startTime),
                   dft.format(finishTime),
+                  dft.format(executionTime),
                   dft.format(responseTime)
           };
 
@@ -223,24 +227,7 @@ public class ServerlessSimpleSimulation {
                 IDs.pollId(ServerlessRequest.class),
                 arrivalTime, functionID, requestLength, pesNumber, containerMemory,
                 containerMips, cpuShareReq, memShareReq, fileSize, outputSize, utilizationModelPar,
-                utilizationModelPar, utilizationModel, 1, true);
-//        request = new ServerlessRequest(
-//            IDs.pollId(ServerlessRequest.class),
-//            Double.parseDouble(data[4]),
-//            String.valueOf(data[3]),
-//            (long) Float.parseFloat(data[7]),
-//            Integer.parseInt(data[5]),
-//            Integer.parseInt(data[6]),
-//            containerMips,
-//            cpuShareReq,
-//            memShareReq,
-//            fileSize,
-//            outputSize,
-//            utilizationModelPar,
-//            utilizationModelPar,
-//            utilizationModel,
-//            0,
-//            true);
+                utilizationModelPar, utilizationModel, 10, true);
         System.out.println("request No " + request.getCloudletId());
       } catch (Exception e) {
         e.printStackTrace();
@@ -308,14 +295,15 @@ public class ServerlessSimpleSimulation {
 
     List<ContainerHost> hostList = createHostList(Constants.NUMBER_HOSTS);
     // Select hosts to migrate
-    HostSelectionPolicy hostSelectionPolicy = new HostSelectionPolicyFirstFit();
+//    HostSelectionPolicy hostSelectionPolicy = new HostSelectionPolicyFirstFit();
     // Select vms to migrate
-    PowerContainerVmSelectionPolicy vmSelectionPolicy = new PowerContainerVmSelectionPolicyMaximumUsage();
+//    PowerContainerVmSelectionPolicy vmSelectionPolicy = new PowerContainerVmSelectionPolicyMaximumUsage();
     // Allocating host to vm
-    ContainerVmAllocationPolicy vmAllocationPolicy = new PCVmAllocationPolicyMigrationAbstractHostSelection(hostList,
-        vmSelectionPolicy,
-        hostSelectionPolicy, Constants.OVER_UTILIZATION_THRESHOLD, Constants.UNDER_UTILIZATION_THRESHOLD);
-    // Allocating vms to container
+//    ContainerVmAllocationPolicy vmAllocationPolicy = new PCVmAllocationPolicyMigrationAbstractHostSelection(hostList,
+//        vmSelectionPolicy,
+//        hostSelectionPolicy, Constants.OVER_UTILIZATION_THRESHOLD, Constants.UNDER_UTILIZATION_THRESHOLD);
+    ContainerVmAllocationPolicy vmAllocationPolicy = new PowerContainerVmAllocationSimple(hostList);
+//     Allocating vms to container
     FunctionScheduler containerAllocationPolicy = new FunctionScheduler();
 
     ContainerDatacenterCharacteristics characteristics = new ContainerDatacenterCharacteristics(arch, os, vmm, hostList,

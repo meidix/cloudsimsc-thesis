@@ -466,10 +466,6 @@ public class ServerlessDatacenter extends PowerContainerDatacenterCM {
             destroyIdleContainers();
             send(this.getId(), Constants.AUTO_SCALING_INTERVAL, CloudSimSCTags.AUTO_SCALE);
         }
-
-
-
-
     }
 
     protected void sendScaledContainerCreationRequest(String[] data){

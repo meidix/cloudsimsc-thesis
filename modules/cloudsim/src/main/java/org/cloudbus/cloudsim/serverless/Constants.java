@@ -32,7 +32,7 @@ public class Constants {
   /**
    * Startup delay for VMs and the containers are mentioned here.
    */
-  public static final double CONTAINER_STARTTUP_DELAY = 0.5;// the amount is in seconds
+  public static final double CONTAINER_STARTTUP_DELAY = 2.0;// the amount is in seconds
   public static final double VM_STARTTUP_DELAY = 10;// the amount is in seconds
   /**
    * Initial scheduling delay for a function request.
@@ -52,6 +52,7 @@ public class Constants {
   public static final int NUM_TASKS = 50;
   public static final double CPU_USAGE_MONITORING_INTERVAL = 0.01;
 
+
   public static final double AUTO_SCALING_INTERVAL = 2;
   public static final double FUNCTION_PLACEMENT_TIME = 0.002;
   public static final double MINIMUM_INTERVAL_BETWEEN_TWO_CLOUDLET_SUBMISSIONS = 0.001;
@@ -64,7 +65,7 @@ public class Constants {
   public static final int VM_TYPES = 4;
   public static final double[] VM_MIPS = new double[] { 12000, 12000, 12000, 12000 };
   public static final int[] VM_PES = new int[] { 4, 4, 4, 4 };
-  public static final float[] VM_RAM = new float[] { (float) 16384, (float) 16384, (float) 16384, (float) 16384 };// **MB*
+  public static final float[] VM_RAM = new float[] { (float) 32768, (float) 32768, (float) 32768, (float) 32768 };// **MB*
   public static final int VM_BW = 20000;
   public static final int VM_SIZE = 30000;
   public static final int CPU_HISTORY_LENGTH = 100;
@@ -100,7 +101,7 @@ public class Constants {
   public static final int HOST_TYPES = 3;
   public static final int[] HOST_MIPS = new int[] { 96000, 96000, 96000 };
   public static final int[] HOST_PES = new int[] { 32, 32, 32 };
-  public static final int[] HOST_RAM = new int[] { 131072, 131072, 131072 };
+  public static final int[] HOST_RAM = new int[] { 262144, 262144, 262144 };
   public static final int HOST_BW = 20000000;
   public static final int HOST_STORAGE = 30000000;
   public static final PowerModel[] HOST_POWER = new PowerModel[] { new PowerModelSpecPowerHpProLiantMl110G4Xeon3040(),
@@ -115,9 +116,8 @@ public class Constants {
    * population.
    */
 
-  public static final int NUMBER_HOSTS = 2;
-  public static final int NUMBER_VMS = 16;
-  public static final int NUMBER_requestS = 1;
+  public static final int NUMBER_HOSTS = 1;
+  public static final int NUMBER_VMS = 8;
 
   /**
    * Name of the file containing function requests list.
@@ -136,17 +136,26 @@ public class Constants {
   public static final boolean FUNCTION_AUTOSCALING = false;
   public static final boolean FUNCTION_HORIZONTAL_AUTOSCALING = false;
   public static final boolean FUNCTION_VERTICAL_AUTOSCALING = false;
-  public static final boolean SCALE_PER_REQUEST = true;
+  public static final boolean SCALE_PER_REQUEST = false;
   public static final String VM_SELECTION_ALGO = "RR";
   public static final String HOR_SCALING_LOGIC = "cpuThreshold";
   public static final String SCALING_TRIGGER_LOGIC = "cpuThreshold";
   public static final String CONTAINER_SELECTION_ALGO = "FF";
-  public static final int MAX_RESCHEDULE_TRIES = 8;
+  public static final int MAX_RESCHEDULE_TRIES = 10;
   public static final boolean MONITORING = true;
   public static final int MAX_REPLICAS = 100;
 
   public static final boolean CONTAINER_IDLING_ENABLED = true;
 
-  public static final int CONTAINER_IDLING_TIME = 5;
+  public static final int CONTAINER_IDLING_TIME = 100;
+
+  /**
+  * ENSURE settings
+  * */
+  public static final int ENSURE_INVOKER_STATE_SAFE = 1;
+  public static final int ENSURE_INVOKER_STATE_PRE_WARMING = 2;
+  public static final int ENSURE_INVOKER_STATE_WARNING = 3;
+  public static final int ENSURE_INVOKER_STATE_UNSAFE = 4;
+
 
 }
